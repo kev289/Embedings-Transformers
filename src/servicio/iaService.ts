@@ -12,7 +12,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
 // Transformers
 export async function generateTransformerResponse(prompt: string): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const result = await model.generateContent(`Explica brevemente el concepto de esta palabra o frase: ${prompt}`);
     return result.response.text();
