@@ -21,14 +21,18 @@
 
 - Abrir localhost:3000 por que el frontend ya fue integrado
 
-## NOTAS
 
-- Primeras interacciones con Prisma, modifique el tema de los vectores para ser guardado en mi base de datos con ayuda de la IA en cosas muy complejas.
+## Postgres
 
-- Base de datos sucia, por los vectores, segun lo que tengo entendido tengo que integrarle Postgres con Pgvector para tener una base de datos mas limpia y eficiente.
+- Migre la base de datos a Postgres pero me encontre con un error y es que postgres no renderiza todo el vector, entonces hice un console.log que muestra que palabra ingrese, pero esta funcionando perfectamente la aplicacion.
+
+### Comandos
+
+```bash
+   psql -d Emb_Trans -c "\dt" 
+``` 
 
 ## FEATURES 
 
 - Types e interfaces para el manejo correcto de datos
-- Postgres con Pgvector para tener una base de datos mas limpia y eficiente
 

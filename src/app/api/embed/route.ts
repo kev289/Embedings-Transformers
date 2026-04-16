@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { generateEmbedding, generateTransformerResponse } from '@/src/servicio/iaService';
-import { cosineSimilarity } from '@/src/lib/utils';
 import { prisma } from '@/src/lib/prisma';
 
 export async function POST(req: Request) {
@@ -14,32 +13,40 @@ export async function POST(req: Request) {
 
         console.log("Vector y Transformación generados para:", query);
 
-        const nuevaComparacion = await prisma.comparison.create({
-            data: {
-                text: query,
-                vector: JSON.stringify(queryVector),
-                userId: 1,
-                transformation: transformacionTextual
-            }
-        });
+        // 1. Guardar en PostgreSQL convirtiendo nuestro array a un tipo vector de Postgres
+        const vectorStr = `[${queryVector.join(",")}]`;
 
-        console.log("Guardado en DB con ID:", nuevaComparacion.id);
+        await prisma.$executeRaw`
+            INSERT INTO "Comparison" (text, vector, "transformation", "userId") 
+            VALUES (${query}, ${vectorStr}::vector, ${transformacionTextual}, 1)
+        `;
 
-        const comparacionesGuardadas = await prisma.comparison.findMany();
+        console.log("Guardado en DB (PostgreSQL) usando vector type:", query);
 
-        const results = comparacionesGuardadas.map(item => {
-            const dbVector = JSON.parse(item.vector);
+        // REVISAR SI EXISTE EN DB
+        const todos = await prisma.comparison.findMany();
+        console.log("=== TOTAL REGISTROS EN LA BASE DE DATOS:", todos.length, "===");
+        todos.forEach(t => console.log("=>", t.text));
 
-            return {
-                text: item.text,
-                similarity: (cosineSimilarity(queryVector, dbVector) * 100).toFixed(2) + "%"
-            };
-        }).sort((a, b) => parseFloat(b.similarity) - parseFloat(a.similarity));
+        // 2. Buscar similitudes delegando el trabajo matemático a la base de datos (mucho más eficiente)
+        // El operador <=> calcula la distancia coseno en pgvector.
+        const dbResults = await prisma.$queryRaw<any[]>`
+            SELECT text, 1 - (vector <=> ${vectorStr}::vector) AS similarity
+            FROM "Comparison"
+            ORDER BY similarity DESC
+            LIMIT 5;
+        `;
 
-        return NextResponse.json({ 
-            query, 
-            transformacion: transformacionTextual, 
-            results 
+        // 3. Formatear resultados
+        const results = dbResults.map((item) => ({
+            text: item.text,
+            similarity: (item.similarity * 100).toFixed(2) + "%"
+        }));
+
+        return NextResponse.json({
+            query,
+            transformacion: transformacionTextual,
+            results
         });
 
     } catch (error) {

@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
@@ -18,7 +20,7 @@ model User {
 model Comparison {
   id              Int      @id @default(autoincrement())
   text            String   @db.Text   
-  vector          String   @db.Text   
+  vector          Unsupported("vector(3072)") 
   transformation  String?  @db.Text   
   createdAt       DateTime @default(now())
   userId          Int
