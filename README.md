@@ -36,3 +36,6 @@
 
 - Types e interfaces para el manejo correcto de datos
 
+## Historia de usuario
+
+Fue agregado, el ORM, con postgres para el control de la base de datos.
