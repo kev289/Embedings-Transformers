@@ -19,12 +19,8 @@
     npm run dev
 ``` 
 
-- Abrir localhost:3000 por que el frontend ya fue integrado
+- Abrir localhost:3000 
 
-
-## Postgres
-
-- Migre la base de datos a Postgres pero me encontre con un error y es que postgres no renderiza todo el vector, entonces hice un console.log que muestra que palabra ingrese, pero esta funcionando perfectamente la aplicacion.
 
 ### Comandos
 
